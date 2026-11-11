@@ -1,3 +1,4 @@
+#include <Arduino.h>
 const int clockInputPin = 10; // Connected to the 555 timer output (Clock)
 const int dataPin = 11; // Connected to DS (Data In) on the shift register
 const int clockReset = 2; //manually resets the clock at the start of run
@@ -11,6 +12,8 @@ byte bytePattern = 0b00000010;
 int bitIndex = 7; // Start from the most significant bit
 int pClockIndex = 0;
 int inA, inB, inC, inD, inE, inF, inG, inH;
+int outA, outB, outC, outD, outE, outF, outG, outH;
+byte outQ = bytePattern;
 
 bool lastClockState = LOW;
 bool lastCounterq0 = LOW;
@@ -26,6 +29,7 @@ pinMode(clockInh, OUTPUT);
 digitalWrite(clockReset, LOW);
 delay(30);
 digitalWrite(clockReset, HIGH);
+
 }
 
 void loop() {
@@ -43,7 +47,7 @@ bool currentClockState = digitalRead(clockInputPin);
 if (currentClockState == HIGH && lastClockState == LOW) {
   PisoShift();
 // Extract the current bit (0 or 1) from our pattern
-int currentBit = bitRead(bytePattern, bitIndex);
+int currentBit = bitRead(outQ, bitIndex);
 
 // Send that bit to the shift register's data pin
 digitalWrite(dataPin, currentBit);
@@ -52,6 +56,7 @@ digitalWrite(dataPin, currentBit);
 bitIndex--;
 if (bitIndex < 0) {
 bitIndex = 7;
+updateOutQ();
 
 // Optional: You could change bytePattern here to display a new frame!
 }
@@ -122,9 +127,13 @@ void PisoShift() {
   }
 }
 
-
-
-  //ON LAST PULSE REMEMBER TO RESET TO 0 (or -1)
-  pClockIndex += 1;
-
+void updateOutQ(){
+  bitWrite(outQ, 7, outA);
+bitWrite(outQ, 6, outB);
+bitWrite(outQ, 5, outC);
+bitWrite(outQ, 4, outD);
+bitWrite(outQ, 3, outE);
+bitWrite(outQ, 2, outF);
+bitWrite(outQ, 1, outG);
+bitWrite(outQ, 0, outH);
 }
