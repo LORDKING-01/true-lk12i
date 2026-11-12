@@ -1,22 +1,31 @@
-const int clockInputPin = 10; // Connected to the 555 timer output (Clock)
+#include <Arduino.h>
+const int clockPin = 10; // Connected to the 555 timer output (Clock)
 const int dataPin = 11; // Connected to DS (Data In) on the shift register
 const int clockReset = 2; //manually resets the clock at the start of run
 const int counterQ0 = 4; //reads when 4017 hits Q0
 const int loadPin = 5;
 const int clockInh = 7;
 const int qhPin = 6;
+const int sipoLatch = 12;
 //Pattern to transmit
 //RMB byte pattern is in reverse order
-byte bytePattern = 0b00000010;
+
 int bitIndex = 7; // Start from the most significant bit
 int pClockIndex = 0;
 int inA, inB, inC, inD, inE, inF, inG, inH;
+int outA = 0;
+int outB = 1;
+int outC = 0;
+int outD = 1;
+int outE = 0;
+int outF = 1;
+int outG = 0;
+int outH = 1;
 
-bool lastClockState = LOW;
-bool lastCounterq0 = LOW;
+int outQ[8] = {outA, outB, outC, outD, outE, outF, outG, outH};
 
 void setup() {
-pinMode(clockInputPin, INPUT);
+pinMode(clockPin, OUTPUT);
 pinMode(dataPin, OUTPUT);
 pinMode(clockReset, OUTPUT);
 pinMode(counterQ0, INPUT);
@@ -24,26 +33,15 @@ pinMode(loadPin, OUTPUT);
 pinMode(qhPin, INPUT);
 pinMode(clockInh, OUTPUT);
 digitalWrite(clockReset, LOW);
-delay(30);
 digitalWrite(clockReset, HIGH);
+pinMode(sipoLatch, OUTPUT);
+
 }
 
 void loop() {
-  delay(12);
-bool currentCounterq0 = digitalRead(counterQ0);
-if (currentCounterq0 == HIGH && lastCounterq0 == LOW) {
-  bitIndex = 7;
-}
-lastCounterq0 = currentCounterq0;
+clockPulse();
 
-// Read the current state of the 555 clock
-bool currentClockState = digitalRead(clockInputPin);
-
-// Detect a rising edge (when the 555 clock ticks from LOW to HIGH)
-if (currentClockState == HIGH && lastClockState == LOW) {
-  PisoShift();
-// Extract the current bit (0 or 1) from our pattern
-int currentBit = bitRead(bytePattern, bitIndex);
+int currentBit = outQ[bitIndex];
 
 // Send that bit to the shift register's data pin
 digitalWrite(dataPin, currentBit);
@@ -52,14 +50,20 @@ digitalWrite(dataPin, currentBit);
 bitIndex--;
 if (bitIndex < 0) {
 bitIndex = 7;
+digitalWrite(sipoLatch, HIGH);
+delayMicroseconds(30);
+digitalWrite(sipoLatch, LOW);
+
+
+updateOutQ();
+
 
 // Optional: You could change bytePattern here to display a new frame!
 }
-  
-}
 
-// Save the clock state for the next loop iteration
-lastClockState = currentClockState;
+
+
+
 }
 
 void PisoShift() {
@@ -122,9 +126,13 @@ void PisoShift() {
   }
 }
 
+void updateOutQ(){
+int outQ[8] = {outA, outB, outC, outD, outE, outF, outG, outH};
+}
 
-
-  //ON LAST PULSE REMEMBER TO RESET TO 0 (or -1)
-  pClockIndex += 1;
-
+void clockPulse(){
+  digitalWrite(clockPin, HIGH);
+  delay(20);
+  digitalWrite(clockPin,LOW);
+  delay(20);
 }
