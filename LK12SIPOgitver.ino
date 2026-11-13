@@ -8,43 +8,53 @@ int bitIndex = 7; // Start from the most significant bit
 int pClockIndex = 0;
 int inA, inB, inC, inD, inE, inF, inG, inH;
 
-// int outA = 1;
-// int outB = 0;
-// int outC = 1;
-// int outD = 0;
-// int outE = 1;
-// int outF = 0;
-// int outG = 1;
-// int outH = 0;
 
-int outA = 0;
-int outB = 1;
-int outC = 0;
-int outD = 1;
-int outE = 0;
-int outF = 1;
-int outG = 0;
-int outH = 1;
+int outA = 1;
+int outB = 0;
+int outC = 1;
+int outD = 0;
+int outE = 1;
+int outF = 0;
+int outG = 1;
+int outH = 0;
+
+
+// int outA = 0;
+// int outB = 1;
+// int outC = 0;
+// int outD = 1;
+// int outE = 0;
+// int outF = 1;
+// int outG = 0;
+// int outH = 1;
+
 
 int outQ[8] = {outA, outB, outC, outD, outE, outF, outG, outH};
 
+
 void setup() {
+Serial.begin(9600);
 
 pinMode(clockPin, OUTPUT);
 pinMode(dataPin, OUTPUT);
 pinMode(sipoLatch, OUTPUT);
 
+
 }
+
 
 void loop() {
   // 1. Get the current bit
   int currentBit = outQ[bitIndex];
 
+
   // 2. Put it on the data pin FIRST
   digitalWrite(dataPin, currentBit);
 
+
   // 3. THEN pulse the clock so the 595 reads it
-clockPulse();
+  clockPulse();
+
 
   // 4. Move to the next bit
   bitIndex--;
@@ -56,13 +66,24 @@ clockPulse();
     delayMicroseconds(30);
     digitalWrite(sipoLatch, LOW);
 
+
     updateOutQ();
   }
 }
 
+
 void updateOutQ(){
-int outQ[8] = {outA, outB, outC, outD, outE, outF, outG, outH};
+
+  outQ[0] = outA;
+  outQ[1] = outB;
+  outQ[2] = outC;
+  outQ[3] = outD;
+  outQ[4] = outE;
+  outQ[5] = outF;
+  outQ[6] = outG;
+  outQ[7] = outH;
 }
+
 
 void clockPulse(){
   digitalWrite(clockPin, HIGH);
