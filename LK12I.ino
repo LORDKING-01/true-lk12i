@@ -39,6 +39,7 @@ pinMode(clockPin, OUTPUT);
 pinMode(dataPin, OUTPUT);
 pinMode(sipoLatch, OUTPUT);
 
+Serial.setTimeout(50);
 
 }
 
