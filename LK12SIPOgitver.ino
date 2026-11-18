@@ -7,7 +7,6 @@ const int sipoLatch = 12;
 int bitIndex = 7; // Start from the most significant bit
 int pClockIndex = 0;
 int inA, inB, inC, inD, inE, inF, inG, inH;
-int tempCycle = 0;
 
 
 int outA = 1;
@@ -35,7 +34,7 @@ int outQ[8] = {outA, outB, outC, outD, outE, outF, outG, outH};
 
 void setup() {
 Serial.begin(9600);
-
+Serial.setTimeout(50);
 pinMode(clockPin, OUTPUT);
 pinMode(dataPin, OUTPUT);
 pinMode(sipoLatch, OUTPUT);
@@ -54,7 +53,7 @@ void loop() {
 
 
   // 3. THEN pulse the clock so the 595 reads it
-clockPulse();
+  clockPulse();
 
 
   // 4. Move to the next bit
@@ -67,38 +66,15 @@ clockPulse();
     delayMicroseconds(30);
     digitalWrite(sipoLatch, LOW);
 
-
+    flashByte();
     updateOutQ();
   }
+
 }
 
-void tempFlash(){
-    //temp code
-  if(tempCycle == 0){
-    outA = 1;
-    outB = 0;
-    outC = 1;
-    outD = 0;
-    outE = 1;
-    outF = 0;
-    outG = 1;
-    outH = 0;
-    tempCycle = 1;
-  }
-  else if (tempCycle == 1){
-    outA = 0;
-    outB = 1;
-    outC = 0;
-    outD = 1;
-    outE = 0;
-    outF = 1;
-    outG = 0;
-    outH = 1;
-    tempCycle = 0;
-  }
-}
+
 void updateOutQ(){
-  tempFlash();
+
   outQ[0] = outA;
   outQ[1] = outB;
   outQ[2] = outC;
@@ -109,10 +85,26 @@ void updateOutQ(){
   outQ[7] = outH;
 }
 
+void flashByte(){
+  if(Serial.available() > 0)
+  {
+    
+    String input = Serial.readStringUntil('\n');
+    input.trim();
+    if (input.length() == 8)
+    {
+      for(int i = 0; i < 8; i++)
+      {
+        outQ[i] = input[i] - '0';
+      }
+    }
+    
+  }
+}
 
 void clockPulse(){
   digitalWrite(clockPin, HIGH);
-  delay(30);
+  delayMicroseconds(30);
   digitalWrite(clockPin,LOW);
-  delay(30);
+  delayMicroseconds(30);
 }
