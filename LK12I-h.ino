@@ -34,7 +34,7 @@ int outQ[8] = {outA, outB, outC, outD, outE, outF, outG, outH};
 
 void setup() {
   Serial.begin(9600);
-  Serial.setTimeout(50);
+  Serial.setTimeout(10);
   pinMode(pDataPin, INPUT);
   pinMode(pClockPin, OUTPUT);
   pinMode(pLoadPin, OUTPUT);
@@ -57,15 +57,15 @@ void loop() {
   Serial.print("Inputs (H to A): ");
   for (int i = 0; i < 8; i++) {
     int bitVal = digitalRead(pDataPin);
-    Serial.print(bitVal);
+    // Serial.print(bitVal);
 
     
     // Pulse clock to advance to the next bit
     digitalWrite(pClockPin, HIGH);
-    delayMicroseconds(5);
+    delayMicroseconds(4);
     digitalWrite(pClockPin, LOW);
   }
-  Serial.println();
+  // Serial.println();
 
 
 
@@ -89,35 +89,42 @@ void loop() {
     
     // Pulse the output latch (STCP) to send it to the LEDs
     digitalWrite(sLatch, HIGH);
-    delayMicroseconds(30);
+    delayMicroseconds(3);
     digitalWrite(sLatch, LOW);
 
 
-    updateOutQ();
+    flashByte();
   }
 }
 
 
-void updateOutQ(){
-
-
-  outQ[0] = outA;
-  outQ[1] = outB;
-  outQ[2] = outC;
-  outQ[3] = outD;
-  outQ[4] = outE;
-  outQ[5] = outF;
-  outQ[6] = outG;
-  outQ[7] = outH;
+void flashByte(){
+  //code to test serial port and overall functionality of 595
+  //can be replaced with what you want your 595 to flash
+  if(Serial.available() > 0)
+  {
+    
+    String input = Serial.readStringUntil('\n');
+    input.trim();
+    if (input.length() == 8)
+    {
+      for(int i = 0; i < 8; i++)
+      {
+        outQ[i] = input[i] - '0';
+      }
+    }
+    
+  }
 }
+
 
 
 
 
 void clockPulse(){
   digitalWrite(sClockPin, HIGH);
-  delayMicroseconds(30);
+  delayMicroseconds(10);
   digitalWrite(sClockPin,LOW);
-  delayMicroseconds(30);
+  delayMicroseconds(10);
 }
 
