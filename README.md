@@ -29,12 +29,16 @@ Shift registers, in essence, refer to components that can store data temporarily
 
 ### 74x595 SIPO Shift Register
 The 74x595 is the component we will utilize to send our data to multiple recievers in this project. Please refer to the pinout.
+
 <img width="832" height="950" alt="image" src="https://github.com/user-attachments/assets/7bb1465f-f723-4327-8050-ccc0bcb31bde" />
+
 As stated before, Q0 to Q7 is our list of outputs. Pin 14, or SER, is the serial data pin we will use to send bytes that the 595 can translate and output. Pin 13 is an Active-LOW Output Enable pin. This means that if we tie it to ground, our outputs will be available.  RCLK and SCLK are two clock inputs that will be explained later. Pin 10 is another Active-LOW pin which resets the chip if it is tied to ground. To counteract that, we tie it to our source voltage. We have two different clocks made available to us, Register Clock and Shift Clock. When detecting a rising edge, it moves every Q output to the next Q output. That would mean that the data in our Q0 would go to Q1, and our Q1 data would already be at Q2 at that point. When the register clock outputs a high edge, the outputs are updated to the current value they store. Usually, the shift clock is pulsed 8 times before the register clock pulses to correctly map the bits in the right orientation. In order to imagine this, it may help to imagine 8 workers in a factory line. The first person in the line is an expert at operating red items, while the second person in the line is an expert at operating orange items. After they operate on their items, the shift clock is pulsed 8 times, which moves the items down 8 spaces. Shortly after the eighth item follows a cardboard box that keeps shifting down until it hits the eighth person. Finally, after everyone has a cardboard box, the register clock pulses, and the workers are allowed to open their box, revealing the item they are an expert at operating on.
 
 ###
 The 74x165 is the component we will utilize to package our parallel data in a serial manner. Please refer to the pinout.
+
 <img width="1024" height="549" alt="image" src="https://github.com/user-attachments/assets/21e79e64-f84f-4854-9659-ec97a475d187" />
+
 The centre 4 pins on either side are the input pins. Thankfully, they are in a relatively sensible order. Think of the 165 as the inverse of the 595. The CLK INH, or Clock Inhibit, is tied to ground. The clock pin recieves the clock inputs as normal. The Load pin essentially allows us to update our inputs. It is the opposite of the register clock on the 595. As an analogy, the LOAD pin lets each pin collect carboard boxes when it is pulled LOW, and it gives it to the workers when it is pulled HIGH. The SER, or serial data pin, functions as the chip's output. It matches whatever the eighth worker has inside their box. As the clock pulses, the cardboard boxes shift one spot down the assembly line, which exposes new boxes to the SER pin. After all the boxes are collected by the serial data pin, we can load the belt with new boxes. It is important to understand that we need to read the clock pin for the 165 to synchronize it with when we see what is inside each box.
 
 
