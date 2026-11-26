@@ -5,16 +5,15 @@ const int pDataPin = 6;   // Connects to QH (Pin 9)
 const int pClockPin = 5;  // Connects to CLK (Pin 2)
 const int pLoadPin = 9;   // Connects to SH/LD (Pin 1)
 
-////SIPO (74x595 to Arduino)
+//SIPO (74x595 to Arduino)
 const int sClockPin = 10;  // Connected to the 555 timer output (Clock)
 const int sDataPin = 11;   // Connected to DS (Data In) on the shift register
-const int sLatch = 12;
 
 int bitIndex = 7;  // Used for 595 SIPO Shift Indexing
 int pClockIndex = 0; // Used for 165 Shift Indexing
 int inA, inB, inC, inD, inE, inF, inG, inH; // Input Values set by PISO
 
-//Values set to SIPO
+//Values set for SIPO
 int outA = 0;
 int outB = 0;
 int outC = 0;
@@ -24,10 +23,8 @@ int outF = 0;
 int outG = 0;
 int outH = 0;
 
-
-
 //Arrays for in/out
-int outQ[8] = { outA, outB, outC, outD, outE, outF, outG, outH };
+int outQ[8] = {outA, outB, outC, outD, outE, outF, outG, outH};
 int inQ[8];
 
 void setup() {
@@ -38,20 +35,16 @@ void setup() {
   //Arduino pin init
   pinMode(sClockPin, OUTPUT);
   pinMode(sDataPin, OUTPUT);
-  pinMode(sLatch, OUTPUT);
 
   pinMode(pDataPin, INPUT);
   pinMode(pClockPin, OUTPUT);
   pinMode(pLoadPin, OUTPUT);
 }
 
-
 void loop() {
   //Main loops, calls PisoShift and SipoShft constantly
   PisoShift();
   SipoShift();
-
-  //Can add a small delay here (delayMicroSeconds(10)) for stability
 }
 
 void SipoShift() {
@@ -72,12 +65,7 @@ void SipoShift() {
   //After running all 8 bits
   if (bitIndex < 0) {
     bitIndex = 7; //Reset bitIndex
-
-    // Pulse the output latch (STCP) to send it to the LEDs
-    digitalWrite(sLatch, HIGH);
-    delayMicroseconds(3);
-    digitalWrite(sLatch, LOW);
-
+    
     //update output byte
     flashByte();
   }
@@ -93,9 +81,7 @@ void flashByte() {
     String input = Serial.readStringUntil('\n'); //x
     input.trim();                                //x
     if (input.length() == 8) {                   //x
-
       for (int i = 0; i < 8; i++) {
-
         outQ[i] = input[i] - '0';
       }
     }                                            //x
@@ -122,7 +108,7 @@ void PisoShift() {
   byte inputByte = shiftIn(pDataPin, pClockPin, MSBFIRST);
 
   //map inQ to bitRead
-  Serial.print("Inputs (H to A): ");
+  Serial.print("Inputs (A-H): ");
   for (int i = 0; i < 7; i++) {
     inQ[i] = bitRead(inputByte, i + 1);
   }
@@ -131,9 +117,6 @@ void PisoShift() {
   for (int i = 0; i < 8; i++) {
     Serial.print(inQ[i]);
   }
-    Serial.print("\n");
 
+  Serial.print("\n");
 }
-
-
-
