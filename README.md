@@ -62,3 +62,5 @@ The LK12I protocol with only the SIPO functionalities.
 
 ## LK12I-PISO
 The LK12I protocol with only the PISO functionalities.
+
+RMB: add a phase shift mechanism on permanent memory, arduino is out of shift with 4017 timing. EEPROM stuff.
