@@ -41,10 +41,8 @@ The 74x165 is the component we will utilize to package our parallel data in a se
 
 The centre 4 pins on either side are the input pins. Thankfully, they are in a relatively sensible order. Think of the 165 as the inverse of the 595. The CLK INH, or Clock Inhibit, is tied to ground. The clock pin recieves the clock inputs as normal. The Load pin essentially allows us to update our inputs. It is the opposite of the register clock on the 595. As an analogy, the LOAD pin lets each pin collect carboard boxes when it is pulled LOW, and it gives it to the workers when it is pulled HIGH. The last shift, or Q7, functions as the chip's output. It matches whatever the eighth worker has inside their box. As the clock pulses, the cardboard boxes shift one spot down the assembly line, which exposes new boxes to the Q7 pin. After all the boxes are collected by the serial data pin, we can load the belt with new boxes. It is important to understand that we need to read the clock pin for the 165 to synchronize it with when we see what is inside each box.
 
-
-# Uses
-- High speed data transfer
-- Can be rewired into a standalone USB port
+## The Phase Shift Issue
+To trigger the latch, a 4017 was used to essentially pulse once after each byte was completed to tell our 595's latch to pulse. However, on startup, there are some instances where the 4017's byte sequence is not synchronized with the byte sent by the Arduino. As a fix to preserve Arduino pins, a 'Phase Shift' mechanism was added to the main branch. It essentially works as a manual override to synchronize bytes. To use this feature, it is recommended to send a byte where Q0 is on and the rest off (For this repository, A-H and Q-0 are mapped in the order of most significant byte first for ease of reading and access, but can be easily changed). It is recommended to have LEDs running in parallel to the loads placed on your 595 as a source of indication. Of course, this means that your overall amperage for the 595 is lower, but loads shouldn't be running straight off the 595 anyway if it is inductive or a current monster. After the byte is sent, send + or - to shift the order of the byte until it reaches Q0. Alternatively, you can just place an indicator load (like an LED) on Q0 for calibration. This phase shift is saved to memory, so ideally, it should boot up calibrated. If it doesn't, recalibrate.
 
 # Branches
 
@@ -63,4 +61,3 @@ The LK12I protocol with only the SIPO functionalities.
 ## LK12I-PISO
 The LK12I protocol with only the PISO functionalities.
 
-RMB: add a phase shift mechanism on permanent memory, arduino is out of shift with 4017 timing. EEPROM stuff.
