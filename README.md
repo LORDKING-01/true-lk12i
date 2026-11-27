@@ -61,3 +61,5 @@ The LK12I protocol with only the SIPO functionalities.
 ## LK12I-PISO
 The LK12I protocol with only the PISO functionalities.
 
+# To-do
+Make the Lk12I-h daisy-chainable
