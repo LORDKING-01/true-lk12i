@@ -44,14 +44,14 @@ void setup() {
   pinMode(pClockPin, OUTPUT);
   pinMode(pLoadPin, OUTPUT);
 
-  // 1. Load the saved phase shift from EEPROM
+  // Loads the phaseoffset of EEPROM on startup
   phaseOffset = EEPROM.read(PHASE_ADDR);
   if (phaseOffset > 7) {
     phaseOffset = 0; // Default to 0 if EEPROM is uninitialized (255)
     EEPROM.write(PHASE_ADDR, phaseOffset);
   }
 
-  // 2. Apply the phase shift to the 4017 at startup
+  // Applys the phase shift by manually pulsing the clock to line up the byte
   digitalWrite(sDataPin, LOW);
   for (int i = 0; i < phaseOffset; i++) {
     clockPulse();
@@ -67,7 +67,7 @@ void loop() {
   SipoShift();
 }
 
-void SipoShift() {
+void SipoShift() { //Encompasses shifting in the SIPO and sending bits based on the SIPO array
   // Calls the current bit from SIPO array
   int currentBit = outQ[bitIndex];
 
@@ -89,21 +89,25 @@ void SipoShift() {
   }
 }
 
-void flashByte() {
-  // Communicates over the serial port
+void flashByte() { //Encompasses updating the byte 
+  //Communicates over the serial port
+  //This is the code that you will use to update the byte sent to the 595
+  //By default, there is code to manually send and test bytes
+  //Code marked with an X can be deleted and replaced with your new code
   if (Serial.available() > 0) {
     String input = Serial.readStringUntil('\n');
     input.trim();
 
-    // Shift phase forward by 1 clock cycle and save to EEPROM
+
+    //Shift phase forward by 1 clock cycle and save to EEPROM
     if (input == "+") {
-      clockPulse();
+      clockPulse();  //manually pulses the clock to start fresh
       phaseOffset = (phaseOffset + 1) % 8;
       EEPROM.update(PHASE_ADDR, phaseOffset);
       Serial.print("Phase shifted (+1). Saved offset: ");
       Serial.println(phaseOffset);
     }
-    // Shift phase backward by 1 clock cycle (7 forward) and save to EEPROM
+    //Shift phase backward by 1 clock cycle (7 forward) and save to EEPROM
     else if (input == "-") {
       for (int i = 0; i < 7; i++) {
         clockPulse();
@@ -113,24 +117,23 @@ void flashByte() {
       Serial.print("Phase shifted (-1). Saved offset: ");
       Serial.println(phaseOffset);
     }
-    // Load new 8-bit pattern
-    else if (input.length() == 8) {
-      for (int i = 0; i < 8; i++) {
-        outQ[i] = input[i] - '0';
-      }
-    }
+    // Load new 8-bit pattern 
+    else if (input.length() == 8) { //x
+      for (int i = 0; i < 8; i++) { //x
+        outQ[i] = input[i] - '0';   //x
+      }                             //x
+    }                               //x
   }
 }
 
-void clockPulse() {
-  // Pulses the clock, giving it a HIGH edge
+void clockPulse() {    // Pulses the clock, giving it a HIGH edge
   digitalWrite(sClockPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(sClockPin, LOW);
   delayMicroseconds(10);
 }
 
-void PisoShift() {
+void PisoShift() { //Encompasses everything related to the 165
   // Save parallel inputs into the register
   digitalWrite(pLoadPin, LOW);
   delayMicroseconds(12); // Barely overclockable
